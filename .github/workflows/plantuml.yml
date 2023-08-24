@@ -23,9 +23,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
     
-    - name: Render PlantUML to wiki
-      uses: frederikheld/render-plantuml-to-wiki-action@v1.0.1
-      with:
-        WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
-        INPUT_DIR: 'input'
-        OUTPUT_DIR: 'output'
+      - name: Render PlantUML to wiki
+        uses: frederikheld/render-plantuml-to-wiki-action@v1.0.1
+        with:
+          WIKI_TOKEN: ${{ secrets.WIKI_TOKEN }}
+          INPUT_DIR: 'input'
+          OUTPUT_DIR: 'output'
