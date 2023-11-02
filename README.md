@@ -1,5 +1,7 @@
 1) How to create a new UML diagram and add it to the wiki page
 
+Make sure your UML diagram can be successfully compiled
+
 a) mv foo.uml input #The file extension name must be .uml
    git add foo.uml
    git commit -s -m "xxxxx"
@@ -16,7 +18,7 @@ b) Give some time for the github workflow to run.
 b) Go to Wiki page
    Click "New page"
    Write a ref to the output picture:
-   [[/output/foo.png|alt=test]]
+   [[/output/foo.png|alt=foo]]
 
 c) Save the wiki page and enjoy.
 
