@@ -44,20 +44,24 @@ package "Host" {
   }
 
   package "Intel Host TSM Driver" {
-    [host.kernel.tsm_driver.intel.device_connect]
-    [host.kernel.tsm_driver.intel.device_reclaim]
-    [host.kernel.tsm_driver.intel.tdi_bind]
-    [host.kernel.tsm_driver.intel.tdi_unbind]
-    [host.kernel.tsm_driver.intel.tdi_info]
-    [host.kernel.tsm_driver.intel.tpa_command_channel]
+    package host.kernel.tsm_driver.intel {
+      [host.kernel.tsm_driver.intel.device_connect]
+      [host.kernel.tsm_driver.intel.device_reclaim]
+      [host.kernel.tsm_driver.intel.tdi_bind]
+      [host.kernel.tsm_driver.intel.tdi_unbind]
+      [host.kernel.tsm_driver.intel.tdi_info]
+      [host.kernel.tsm_driver.intel.tpa_command_channel]
+    }
   }
 
   package "AMD Host TSM Driver" {
-    [host.kernel.tsm_driver.amd.device_connect]
-    [host.kernel.tsm_driver.amd.device_reclaim]
-    [host.kernel.tsm_driver.amd.tdi_bind]
-    [host.kernel.tsm_driver.amd.tdi_unbind]
-    [host.kernel.tsm_driver.amd.tdi_info]
+    package host.kernel.tsm_driver.amd {
+      [host.kernel.tsm_driver.amd.device_connect]
+      [host.kernel.tsm_driver.amd.device_reclaim]
+      [host.kernel.tsm_driver.amd.tdi_bind]
+      [host.kernel.tsm_driver.amd.tdi_unbind]
+      [host.kernel.tsm_driver.amd.tdi_info]
+    }
   }
 
   package "Host TPA QEMU" {
@@ -105,6 +109,7 @@ package "TVM" {
   }
 
   package "Guest TSM Driver Based On GHCX" {
+    package guest.kernel.tsm_driver.ghcx {
       [guest.kernel.tsm_driver.ghcx.device_connect]
       [guest.kernel.tsm_driver.ghcx.device_reclaim]
       [guest.kernel.tsm_driver.ghcx.tdi_bind]
@@ -112,16 +117,17 @@ package "TVM" {
       [guest.kernel.tsm_driver.ghcx.tdi_info]
       [guest.kernel.tsm_driver.ghcx.accept_device]
       [guest.kernel.tsm_driver.ghcx.start_mmio]
+    }
   }
 
   package "Guest TSM Driver Based On Direct Register Access" {
-      [guest.kernel.tsm_driver.direct.device_connect]
-      [guest.kernel.tsm_driver.direct.device_reclaim]
-      [guest.kernel.tsm_driver.direct.tdi_bind]
-      [guest.kernel.tsm_driver.direct.tdi_unbind]
-      [guest.kernel.tsm_driver.direct.tdi_info]
-      [guest.kernel.tsm_driver.direct.accept_device]
-      [guest.kernel.tsm_driver.direct.start_mmio]
+    [guest.kernel.tsm_driver.direct.device_connect]
+    [guest.kernel.tsm_driver.direct.device_reclaim]
+    [guest.kernel.tsm_driver.direct.tdi_bind]
+    [guest.kernel.tsm_driver.direct.tdi_unbind]
+    [guest.kernel.tsm_driver.direct.tdi_info]
+    [guest.kernel.tsm_driver.direct.accept_device]
+    [guest.kernel.tsm_driver.direct.start_mmio]
   }
 
   package "Guest Userspace Attestation" {
@@ -138,22 +144,16 @@ host.tvm.qemu.vcpu_thread --> host.kernel.pci.sysfs.tdisp_disable
 host.tvm.qemu.vcpu_thread --> host.kernel.pci.sysfs.tdisp_info
 
 'Host userspace TDISP control ABI talks to HOST PCI TDISP routines
-
 host.kernel.pci.sysfs.tdisp_enable -->host.kernel.pci.tdisp.tdisp_enable
 host.kernel.pci.sysfs.tdisp_disable -->host.kernel.pci.tdisp.tdisp_disable
 host.kernel.pci.sysfs.tdisp_info -->host.kernel.pci.tdisp.tdisp_info
 
 'Host TSM driver controls DOE via DOE driver
-"AMD Host TSM Driver" --> host.kernel.doe_driver.read_write_message
-"Intel Host TSM Driver" --> host.kernel.doe_driver.read_write_message
+host.kernel.tsm_driver.amd --> host.kernel.doe_driver.read_write_message
+host.kernel.tsm_driver.intel --> host.kernel.doe_driver.read_write_message
 
 'Host DOE driver reads/writes device DOE
 host.kernel.doe_driver.read_write_message --> pci_device.doe
-
-'Host PCI TDISP usersapce API calls Host PCI TDISP
-host.kernel.pci.sysfs.tdisp_enable --> host.kernel.pci.tdisp.tdisp_enable
-host.kernel.pci.sysfs.tdisp_disable --> host.kernel.pci.tdisp.tdisp_disable
-host.kernel.pci.sysfs.tdisp_info --> host.kernel.pci.tdisp.tdi_info
 
 'Host PCI TDISP talks to TSM Driver API
 host.kernel.pci.tdisp.tdisp_enable --> host.kernel.tsm_driver.api.device_connect
@@ -191,13 +191,13 @@ host.tpa.qemu.vcpu_thread <--> host.kernel.kvm.vcpu_run
 host.kernel.kvm.intel.tpa_command_dispatcher <--> tsm.intel.tdx_module
 
 'AMD Host TSM Driver talks to AMD PSP firmware
-"AMD Host TSM Driver" --> tsm.amd.psp_firmware
+host.kernel.tsm_driver.amd --> tsm.amd.psp_firmware
 
 'Guest Attestation talks to Guest Kernel PCI TDISP Userspace ABI
 guest.userspace.attestation --> guest.kernel.pci.sysfs.tdisp_enable
 guest.userspace.attestation --> guest.kernel.pci.sysfs.tdisp_disable
 guest.userspace.attestation --> guest.kernel.pci.sysfs.tdisp_accept
-guest.userspace.attestation --> guest.kernel.pci.sysfs.tdisp_info
+guest.userspace.attestation <-- guest.kernel.pci.sysfs.tdisp_info
 
 'Guest Kernel PCI TDISP Userspace ABI talks to Guest Kernel PCI TDISP API
 guest.kernel.pci.sysfs.tdisp_enable --> guest.kernel.pci.tdisp.tdisp_enable
@@ -211,7 +211,7 @@ guest.kernel.pci.tdisp.tdisp_enable --> guest.kernel.tsm_driver.api.tdi_bind
 guest.kernel.pci.tdisp.tdisp_disable --> guest.kernel.tsm_driver.api.device_reclaim
 guest.kernel.pci.tdisp.tdisp_disable --> guest.kernel.tsm_driver.api.tdi_unbind
 guest.kernel.pci.tdisp.tdisp_accept --> guest.kernel.tsm_driver.api.accept_device
-guest.kernel.pci.tdisp.tdisp_info --> guest.kernel.tsm_driver.api.tdisp_info
+guest.kernel.pci.tdisp.tdisp_info --> guest.kernel.tsm_driver.api.tdi_info
 
 'Guest TSM driver APIs call generic TSM driver based on GHCX
 guest.kernel.tsm_driver.api.device_connect --> guest.kernel.tsm_driver.ghcx.device_connect
@@ -232,7 +232,7 @@ guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.direct.acc
 guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.direct.start_mmio
 
 'Guest TSM driver talks to host VMM
-"Guest TSM Driver Based On GHCX" --> tsm.intel.tdx_module
+guest.kernel.tsm_driver.ghcx --> tsm.intel.tdx_module
 
 'Exit to VMM
 tsm.intel.tdx_module --> host.kernel.kvm.tvm_exit_handler
