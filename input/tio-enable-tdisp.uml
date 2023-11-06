@@ -1,0 +1,91 @@
+@startuml
+
+participant "TVM Userspace" order 10
+participant "TVM Kernel PCI" order 11
+participant "TVM TSM Driver" order 12
+participant "QEMU" order 13
+participant "TPA TVM" order 20
+participant "TPA QEMU" order 21
+participant "KVM" order 30
+participant "Host TSM Driver" order 31
+participant "Host Kernel DOE Driver" order 32
+participant "TSM" order 40
+
+skinparam maxMessageSize 180
+
+group TDISP device enlightment flow based on TSM
+	"TVM Userspace" -> "TVM Kernel PCI": Write enable_tdisp in PCI device sysfs (E.g./sys/devices/pci0000:00/0000:00:00.x/)
+
+	"TVM Kernel PCI" -> "TVM TSM Driver": Request DEVICE_CONNECT
+	"TVM TSM Driver" -> "TSM": GHCx call (DEVICE_CONNECT, virtual Device ID, ...)
+	"TSM" -> "KVM": TVM exit
+	"KVM" -> "QEMU": TVM exit to QEMU
+	"QEMU" -> "QEMU": Translate Device ID
+	"QEMU" -> "Host TSM Driver": ioctl (DEVICE_CONNECT, physical Device ID, ...)
+
+	group Intel TSM Driver
+		"Host TSM Driver" -> "Host TSM Driver": Preapre message (DEVICE_CONNECT) in TPA command buffer
+		"Host TSM Driver" -> "TPA QEMU": Wake up TPA QEMU process
+		"TPA QEMU" -> "TPA QEMU": Get the message and write it to TPA guest memory
+		"TPA QEMU" -> "KVM": Wake up vCPU threads
+		"KVM" -> "TSM": Execute TPA TVM
+		"TSM" -> "TPA TVM": Enter TPA TVM
+
+		"TPA TVM" -> "TSM": Add SPDM session info pages
+		"TSM" --> "TPA TVM":
+		"TPA TVM" -> "TPA TVM": Setup SPDM Session
+
+		"TPA TVM" -> "TSM": GHCI call (FINISH_TPA_COMMAND, data_out = SPDM request, result)
+		"TSM" -> "KVM": TVM exit
+		"KVM" -> "TPA QEMU": TVM exit to QEMU
+		"TPA QEMU" -> "Host TSM Driver": Write data_out and result to TPA command buffer
+
+		loop result == continue
+			"Host TSM Driver" -> "Host Kernel DOE Driver": Write SPDM request to PCI DOE
+			"Host Kernel DOE Driver" --> "Host TSM Driver": Receive SPDM reply from PCI DOE
+			"Host TSM Driver" -> "Host TSM Driver": Preapre message (DEVICE_CONNECT, data_in = SPDM reply) in TPA command buffer
+			"Host TSM Driver" -> "TPA QEMU": Wake up TPA QEMU process
+			"TPA QEMU" -> "TPA QEMU": Get the message and write it to TPA guest memory
+			"TPA QEMU" -> "KVM": Wake up vCPU threads
+			"KVM" -> "TSM": Execute TPA TVM
+			"TSM" -> "TPA TVM": Enter TPA TVM
+
+			"TPA TVM" -> "TPA TVM": Process SPDM message
+
+			alt Setting up SPDM session is finished (Going to set up IDE stream)
+				"TPA TVM" -> "TSM": Pass the SPDM session info
+				"TSM" --> "TPA TVM":
+				"TPA TVM" -> "TPA TVM": Setup IDE stream
+			else Setting up IDE stream is finished
+				"TPA TVM" -> "TSM": Pass the IDE stream info
+				"TSM" --> "TPA TVM":
+			end
+
+			"TPA TVM" -> "TSM": GHCI call (FINISH_TPA_COMMAND, data_out = SPDM request, result)
+			"TSM" -> "KVM": TVM exit
+			"KVM" -> "TPA QEMU": TVM exit to QEMU
+			"TPA QEMU" -> "Host TSM Driver": Write the data and result to TPA command buffer
+		end
+	end
+
+	group AMD TSM Driver
+		"Host TSM Driver" -> "TSM": TIO_DEV_CONNECT
+		"TSM" --> "Host TSM Driver": Return (result = continue)
+
+		loop result == conntinue
+			"Host TSM Driver" -> "Host Kernel DOE Driver": Write SPDM request to PCI DOE
+			"Host Kernel DOE Driver" --> "Host TSM Driver": Receive SPDM reply from PCI DOE
+			"Host TSM Driver" -> "TSM": TIO_DEV_CONNECT
+			"TSM" -> "TSM": Process SPDM message
+			"TSM" --> "Host TSM Driver": Return (result)
+		end
+	end
+
+	"Host TSM Driver" --> "QEMU":
+	"QEMU" -> "KVM": ioctl (KVM_VCPU_RUN)
+	"KVM" -> "TSM": TVM enter
+	"TSM" --> "TVM TSM Driver":
+	"TVM TSM Driver" --> "TVM Kernel PCI":
+	"TVM Kernel PCI" --> "TVM Userspace":
+end
+@enduml
