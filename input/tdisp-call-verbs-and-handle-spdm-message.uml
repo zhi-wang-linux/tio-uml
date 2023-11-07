@@ -1,0 +1,59 @@
+@startuml
+
+participant "TPA TVM" order 20
+participant "TPA QEMU" order 21
+participant "KVM" order 30
+participant "Host TSM Driver" order 31
+participant "Host Kernel DOE Driver" order 32
+participant "TSM" order 40
+
+skinparam maxMessageSize 180
+
+group Call TIO_VERB And Handle SPDM Messages
+	group Intel TSM Driver
+		"Host TSM Driver" -> "Host TSM Driver": Prepare message (TIO_VERB, data_in = empty) in TPA command buffer
+		"Host TSM Driver" -> "TPA QEMU": Call TPA QEMU
+		...Intel TSM Driver Calls TPA QEMU...
+		"TPA QEMU" --> "Host TSM Driver": Return result in the TPA command buffer (data_out = SPDM request, result)
+
+		loop result == continue
+			"Host TSM Driver" -> "Host Kernel DOE Driver": Write SPDM request to PCI DOE
+			"Host Kernel DOE Driver" --> "Host TSM Driver": Receive SPDM reply from PCI DOE
+			"Host TSM Driver" -> "Host TSM Driver": Preapre message (TIO_VERB, data_in = SPDM reply) in TPA command buffer
+			"Host TSM Driver" -> "TPA QEMU": Call TPA QEMU
+			"TPA QEMU" --> "Host TSM Driver": Return result in the TPA command buffer (data_out = SPDM request, result)
+		end
+	end
+
+	group AMD TSM Driver
+		"Host TSM Driver" -> "TSM": TIO_VERB
+		"TSM" --> "Host TSM Driver": Return (result = continue)
+
+		loop result == conntinue
+			"Host TSM Driver" -> "Host Kernel DOE Driver": Write SPDM request to PCI DOE
+			"Host Kernel DOE Driver" --> "Host TSM Driver": Receive SPDM reply from PCI DOE
+			"Host TSM Driver" -> "TSM": TIO_VERB
+			"TSM" -> "TSM": Process SPDM message
+			"TSM" --> "Host TSM Driver": Return (result)
+		end
+	end
+end
+
+group (Backup) Intel TSM Driver Calls TPA QEMU
+	"Host TSM Driver" -> "TPA QEMU": Wake up TPA QEMU process
+	"TPA QEMU" -> "TPA QEMU": Get the message and write it to TPA guest memory
+	"TPA QEMU" -> "KVM": Wake up vCPU threads
+	"KVM" -> "TSM": Execute TPA TVM
+	"TSM" -> "TPA TVM": Enter TPA TVM
+
+	"TPA TVM" -> "TSM": Talking with TSM
+	"TSM" --> "TPA TVM":
+	"TPA TVM" -> "TPA TVM": Handling internal states
+
+	"TPA TVM" -> "TSM": GHCI call (FINISH_TPA_COMMAND, data_out = x, result)
+	"TSM" -> "KVM": TVM exit
+	"KVM" -> "TPA QEMU": TVM exit to QEMU
+	"TPA QEMU" -> "Host TSM Driver": Write data_out and result to TPA command buffer
+end
+
+@enduml
