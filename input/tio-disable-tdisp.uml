@@ -1,0 +1,66 @@
+@startuml
+
+participant "TVM Userspace" order 10
+participant "TVM Kernel PCI" order 11
+participant "TVM TSM Driver" order 12
+participant "QEMU" order 13
+participant "TPA TVM" order 20
+participant "TPA QEMU" order 21
+participant "KVM" order 30
+participant "Host TSM Driver" order 31
+participant "Host Kernel DOE Driver" order 32
+participant "TSM" order 40
+
+skinparam maxMessageSize 180
+
+group TDISP device de-enlightment flow based on TSM
+	group TVM
+		"TVM Userspace" -> "TVM Kernel PCI": Write disable_tdisp in PCI device sysfs (E.g./sys/devices/pci0000:00/0000:00:00.x/)
+
+		"TVM Kernel PCI" -> "TVM TSM Driver": Request TIO_VERB(TDI_UNBIND) (pci_request_tdisp_unbind())
+		"TVM TSM Driver" -> "TSM": GHCx call (TDI_UNBIND, virtual Device ID, ...)
+	end
+
+	group Host
+		"TSM" -> "KVM": TVM exit
+		"KVM" -> "QEMU": TVM exit to QEMU
+		"QEMU" -> "QEMU": Translate Device ID
+
+		"QEMU" -> "KVM": Convert private MMIO region back to shared - ioctl (KVM_SET_MEMORY_ATTRIBUTES)
+
+		"QEMU" -> "Host TSM Driver": ioctl (TDI_UNBIND, physical Device ID, ...)
+
+		...Call TIO_VERB (TDI_UNBIND) and handle SPDM messages...
+
+		"Host TSM Driver" --> "QEMU":
+		"QEMU" -> "KVM": ioctl (KVM_VCPU_RUN)
+		"KVM" -> "TSM": TVM enter
+	end
+
+	group TVM
+		"TSM" --> "TVM TSM Driver":
+		"TVM TSM Driver" --> "TVM Kernel PCI":
+
+		"TVM Kernel PCI" -> "TVM TSM Driver": Request TIO_VERB(DEVICE_RECLAIM) (pci_tdisp_request_device_reclaim())
+		"TVM TSM Driver" -> "TSM": GHCx call (DEVICE_RECLAIM, virtual Device ID, ...)
+	end
+
+	group Host
+		"TSM" -> "KVM": TVM exit
+		"KVM" -> "QEMU": TVM exit to QEMU
+		"QEMU" -> "QEMU": Translate Device ID
+		"QEMU" -> "Host TSM Driver": ioctl (DEVICE_RECLAIM, physical Device ID, ...)
+
+		...Call TIO_VERB (DEVICE_RECLAIM) and handle SPDM messages...
+
+		"Host TSM Driver" --> "QEMU":
+		"QEMU" -> "KVM": ioctl (KVM_VCPU_RUN)
+		"KVM" -> "TSM": TVM enter
+	end
+
+	"TSM" --> "TVM TSM Driver":
+	"TVM TSM Driver" --> "TVM Kernel PCI":
+	"TVM Kernel PCI" --> "TVM Userspace":
+end
+
+@enduml
