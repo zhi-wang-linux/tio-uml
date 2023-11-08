@@ -84,10 +84,13 @@ package "TVM" {
 	package "Guest Kernel" {
 		package "Guest Kernel PCI" {
 			package "Guest Kernel PCI TDISP Userspace ABI" {
-				[guest.kernel.pci.sysfs.tdisp_enable]
-				[guest.kernel.pci.sysfs.tdisp_disable]
 				[guest.kernel.pci.sysfs.tdisp_info]
 				[guest.kernel.pci.sysfs.tdisp_accept]
+			}
+
+			package "Guest Kernel PCI Driver Core" {
+				[guest.kernel.pci.driver.probe]
+				[guest.kernel.pci.driver.remove]
 			}
 
 			package "Guest Kernel PCI TDISP API" {
@@ -109,14 +112,14 @@ package "TVM" {
 	}
 
 	package "Guest TSM Driver Based On GHCX" {
-		package guest.kernel.tsm_driver.ghcx {
-			[guest.kernel.tsm_driver.ghcx.device_connect]
-			[guest.kernel.tsm_driver.ghcx.device_reclaim]
-			[guest.kernel.tsm_driver.ghcx.tdi_bind]
-			[guest.kernel.tsm_driver.ghcx.tdi_unbind]
-			[guest.kernel.tsm_driver.ghcx.tdi_info]
-			[guest.kernel.tsm_driver.ghcx.accept_device]
-			[guest.kernel.tsm_driver.ghcx.start_mmio]
+		package guest.kernel.tsm_driver.virtio {
+			[guest.kernel.tsm_driver.virtio.device_connect]
+			[guest.kernel.tsm_driver.virtio.device_reclaim]
+			[guest.kernel.tsm_driver.virtio.tdi_bind]
+			[guest.kernel.tsm_driver.virtio.tdi_unbind]
+			[guest.kernel.tsm_driver.virtio.tdi_info]
+			[guest.kernel.tsm_driver.virtio.accept_device]
+			[guest.kernel.tsm_driver.virtio.start_mmio]
 		}
 	}
 
@@ -194,14 +197,12 @@ host.kernel.kvm.intel.tpa_command_dispatcher <--> tsm.intel.tdx_module
 host.kernel.tsm_driver.amd --> tsm.amd.psp_firmware
 
 'Guest Attestation talks to Guest Kernel PCI TDISP Userspace ABI
-guest.userspace.attestation --> guest.kernel.pci.sysfs.tdisp_enable
-guest.userspace.attestation --> guest.kernel.pci.sysfs.tdisp_disable
 guest.userspace.attestation --> guest.kernel.pci.sysfs.tdisp_accept
 guest.userspace.attestation <-- guest.kernel.pci.sysfs.tdisp_info
 
 'Guest Kernel PCI TDISP Userspace ABI talks to Guest Kernel PCI TDISP API
-guest.kernel.pci.sysfs.tdisp_enable --> guest.kernel.pci.tdisp.tdisp_enable
-guest.kernel.pci.sysfs.tdisp_disable --> guest.kernel.pci.tdisp.tdisp_disable
+guest.kernel.pci.driver.probe --> guest.kernel.pci.tdisp.tdisp_enable
+guest.kernel.pci.driver.remove --> guest.kernel.pci.tdisp.tdisp_disable
 guest.kernel.pci.sysfs.tdisp_info --> guest.kernel.pci.tdisp.tdisp_info
 guest.kernel.pci.sysfs.tdisp_accept --> guest.kernel.pci.tdisp.tdisp_accept
 
@@ -214,13 +215,13 @@ guest.kernel.pci.tdisp.tdisp_accept --> guest.kernel.tsm_driver.api.accept_devic
 guest.kernel.pci.tdisp.tdisp_info --> guest.kernel.tsm_driver.api.tdi_info
 
 'Guest TSM driver APIs call generic TSM driver based on GHCX
-guest.kernel.tsm_driver.api.device_connect --> guest.kernel.tsm_driver.ghcx.device_connect
-guest.kernel.tsm_driver.api.device_reclaim --> guest.kernel.tsm_driver.ghcx.device_reclaim
-guest.kernel.tsm_driver.api.tdi_bind --> guest.kernel.tsm_driver.ghcx.tdi_bind
-guest.kernel.tsm_driver.api.tdi_unbind --> guest.kernel.tsm_driver.ghcx.tdi_unbind
-guest.kernel.tsm_driver.api.tdi_info --> guest.kernel.tsm_driver.ghcx.tdi_info
-guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.ghcx.accept_device
-guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.ghcx.start_mmio
+guest.kernel.tsm_driver.api.device_connect --> guest.kernel.tsm_driver.virtio.device_connect
+guest.kernel.tsm_driver.api.device_reclaim --> guest.kernel.tsm_driver.virtio.device_reclaim
+guest.kernel.tsm_driver.api.tdi_bind --> guest.kernel.tsm_driver.virtio.tdi_bind
+guest.kernel.tsm_driver.api.tdi_unbind --> guest.kernel.tsm_driver.virtio.tdi_unbind
+guest.kernel.tsm_driver.api.tdi_info --> guest.kernel.tsm_driver.virtio.tdi_info
+guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.virtio.accept_device
+guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.virtio.start_mmio
 
 'Guest TSM driver APIs call generic TSM driver based on direct register access
 guest.kernel.tsm_driver.api.device_connect --> guest.kernel.tsm_driver.direct.device_connect
@@ -232,7 +233,7 @@ guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.direct.acc
 guest.kernel.tsm_driver.api.accept_device --> guest.kernel.tsm_driver.direct.start_mmio
 
 'Guest TSM driver talks to host VMM
-guest.kernel.tsm_driver.ghcx --> tsm.intel.tdx_module
+guest.kernel.tsm_driver.virtio --> tsm.intel.tdx_module
 
 'Exit to VMM
 tsm.intel.tdx_module --> host.kernel.kvm.tvm_exit_handler
