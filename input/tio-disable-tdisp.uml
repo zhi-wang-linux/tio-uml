@@ -1,6 +1,5 @@
 @startuml
 
-participant "TVM Userspace" order 10
 participant "TVM Kernel PCI" order 11
 participant "TVM TSM Driver" order 12
 participant "QEMU" order 13
@@ -15,8 +14,7 @@ skinparam maxMessageSize 180
 
 group TDISP device de-enlightment flow based on TSM
 	group TVM
-		"TVM Userspace" -> "TVM Kernel PCI": Write disable_tdisp in PCI device sysfs (E.g./sys/devices/pci0000:00/0000:00:00.x/)
-
+		"TVM Kernel PCI" -> "TVM Kernel PCI": PCI driver unload
 		"TVM Kernel PCI" -> "TVM TSM Driver": Request TIO_VERB(TDI_UNBIND) (pci_request_tdisp_unbind())
 		"TVM TSM Driver" -> "TSM": GHCx call (TDI_UNBIND, virtual Device ID, ...)
 	end
@@ -60,7 +58,6 @@ group TDISP device de-enlightment flow based on TSM
 
 	"TSM" --> "TVM TSM Driver":
 	"TVM TSM Driver" --> "TVM Kernel PCI":
-	"TVM Kernel PCI" --> "TVM Userspace":
 end
 
 @enduml
