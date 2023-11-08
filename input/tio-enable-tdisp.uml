@@ -22,7 +22,7 @@ group TDISP device enlightment flow based on TSM
 		endnote
 
 		"TVM Kernel PCI" -> "TVM TSM Driver": Request TIO_VERB(DEVICE_CONNECT) (pci_request_tdisp_connect())
-		"TVM TSM Driver" -> "TSM": GHCx call (DEVICE_CONNECT, virtual Device ID, ...)
+		"TVM TSM Driver" -> "TSM": VirtIO call (DEVICE_CONNECT, virtual Device ID, ...)
 	end
 
 	group Host
@@ -43,7 +43,7 @@ group TDISP device enlightment flow based on TSM
 		"TVM TSM Driver" --> "TVM Kernel PCI":
 
 		"TVM Kernel PCI" -> "TVM TSM Driver": Request TIO_VERB(TDI_BIND) (pci_tdisp_request_tdi_bind())
-		"TVM TSM Driver" -> "TSM": GHCx call (TDI_BIND, virtual Device ID, ...)
+		"TVM TSM Driver" -> "TSM": VirtIO call (TDI_BIND, virtual Device ID, ...)
 	end
 
 	group Host

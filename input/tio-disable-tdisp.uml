@@ -16,7 +16,7 @@ group TDISP device de-enlightment flow based on TSM
 	group TVM
 		"TVM Kernel PCI" -> "TVM Kernel PCI": PCI driver unload
 		"TVM Kernel PCI" -> "TVM TSM Driver": Request TIO_VERB(TDI_UNBIND) (pci_request_tdisp_unbind())
-		"TVM TSM Driver" -> "TSM": GHCx call (TDI_UNBIND, virtual Device ID, ...)
+		"TVM TSM Driver" -> "TSM": VirtIO call (TDI_UNBIND, virtual Device ID, ...)
 	end
 
 	group Host
@@ -40,7 +40,7 @@ group TDISP device de-enlightment flow based on TSM
 		"TVM TSM Driver" --> "TVM Kernel PCI":
 
 		"TVM Kernel PCI" -> "TVM TSM Driver": Request TIO_VERB(DEVICE_RECLAIM) (pci_tdisp_request_device_reclaim())
-		"TVM TSM Driver" -> "TSM": GHCx call (DEVICE_RECLAIM, virtual Device ID, ...)
+		"TVM TSM Driver" -> "TSM": VirtIO call (DEVICE_RECLAIM, virtual Device ID, ...)
 	end
 
 	group Host
