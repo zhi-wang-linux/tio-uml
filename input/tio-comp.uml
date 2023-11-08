@@ -2,137 +2,137 @@
 skinparam ranksep 400
 
 package "TDISP PCI Device" {
-  package "Configuration Space" {
-    [pci_device.doe]
-  }
+	package "Configuration Space" {
+		[pci_device.doe]
+	}
 }
 
 package "Host" {
-  package "Host Kernel" {
-    package "Host Kernel KVM" {
-      [host.kernel.kvm.tvm_exit_handler]
-      [host.kernel.kvm.vcpu_run]
-      [host.kernel.kvm.intel.tpa_command_dispatcher]
-    }
-    package "Host Kernel PCI" {
-      package "Host Kernel PCI TDISP Userspace ABI" {
-        [host.kernel.pci.sysfs.tdisp_enable]
-        [host.kernel.pci.sysfs.tdisp_disable]
-        [host.kernel.pci.sysfs.tdisp_info]
-      }
-      package "Host Kernel PCI TDISP API" {
-        [host.kernel.pci.tdisp.tdisp_enable]
-        [host.kernel.pci.tdisp.tdisp_disable]
-        [host.kernel.pci.tdisp.tdisp_info]
-      }
-    }
-    package "Host Kernel DOE Driver" {
-      [host.kernel.doe_driver.read_write_message]
-    }
-  }
+	package "Host Kernel" {
+		package "Host Kernel KVM" {
+			[host.kernel.kvm.tvm_exit_handler]
+			[host.kernel.kvm.vcpu_run]
+			[host.kernel.kvm.intel.tpa_command_dispatcher]
+		}
+		package "Host Kernel PCI" {
+			package "Host Kernel PCI TDISP Userspace ABI" {
+				[host.kernel.pci.sysfs.tdisp_enable]
+				[host.kernel.pci.sysfs.tdisp_disable]
+				[host.kernel.pci.sysfs.tdisp_info]
+			}
+			package "Host Kernel PCI TDISP API" {
+				[host.kernel.pci.tdisp.tdisp_enable]
+				[host.kernel.pci.tdisp.tdisp_disable]
+				[host.kernel.pci.tdisp.tdisp_info]
+			}
+		}
+		package "Host Kernel DOE Driver" {
+			[host.kernel.doe_driver.read_write_message]
+		}
+	}
 
-  package "Host TVM QEMU" {
-    [host.tvm.qemu.vcpu_thread]
-  }
+	package "Host TVM QEMU" {
+		[host.tvm.qemu.vcpu_thread]
+	}
 
-  package "Host TSM Driver API" {
-    [host.kernel.tsm_driver.api.device_connect]
-    [host.kernel.tsm_driver.api.device_reclaim]
-    [host.kernel.tsm_driver.api.tdi_bind]
-    [host.kernel.tsm_driver.api.tdi_unbind]
-    [host.kernel.tsm_driver.api.tdi_info]
-  }
+	package "Host TSM Driver API" {
+		[host.kernel.tsm_driver.api.device_connect]
+		[host.kernel.tsm_driver.api.device_reclaim]
+		[host.kernel.tsm_driver.api.tdi_bind]
+		[host.kernel.tsm_driver.api.tdi_unbind]
+		[host.kernel.tsm_driver.api.tdi_info]
+	}
 
-  package "Intel Host TSM Driver" {
-    package host.kernel.tsm_driver.intel {
-      [host.kernel.tsm_driver.intel.device_connect]
-      [host.kernel.tsm_driver.intel.device_reclaim]
-      [host.kernel.tsm_driver.intel.tdi_bind]
-      [host.kernel.tsm_driver.intel.tdi_unbind]
-      [host.kernel.tsm_driver.intel.tdi_info]
-      [host.kernel.tsm_driver.intel.tpa_command_channel]
-    }
-  }
+	package "Intel Host TSM Driver" {
+		package host.kernel.tsm_driver.intel {
+			[host.kernel.tsm_driver.intel.device_connect]
+			[host.kernel.tsm_driver.intel.device_reclaim]
+			[host.kernel.tsm_driver.intel.tdi_bind]
+			[host.kernel.tsm_driver.intel.tdi_unbind]
+			[host.kernel.tsm_driver.intel.tdi_info]
+			[host.kernel.tsm_driver.intel.tpa_command_channel]
+		}
+	}
 
-  package "AMD Host TSM Driver" {
-    package host.kernel.tsm_driver.amd {
-      [host.kernel.tsm_driver.amd.device_connect]
-      [host.kernel.tsm_driver.amd.device_reclaim]
-      [host.kernel.tsm_driver.amd.tdi_bind]
-      [host.kernel.tsm_driver.amd.tdi_unbind]
-      [host.kernel.tsm_driver.amd.tdi_info]
-    }
-  }
+	package "AMD Host TSM Driver" {
+		package host.kernel.tsm_driver.amd {
+			[host.kernel.tsm_driver.amd.device_connect]
+			[host.kernel.tsm_driver.amd.device_reclaim]
+			[host.kernel.tsm_driver.amd.tdi_bind]
+			[host.kernel.tsm_driver.amd.tdi_unbind]
+			[host.kernel.tsm_driver.amd.tdi_info]
+		}
+	}
 
-  package "Host TPA QEMU" {
-    [host.tpa.qemu.vcpu_thread]
-    package "SPDM/TDCM/TPA Service" {
-      [host.tpa.qemu.intel.tpa_service_thread]
-    }
-  }
+	package "Host TPA QEMU" {
+		[host.tpa.qemu.vcpu_thread]
+		package "SPDM/TDCM/TPA Service" {
+			[host.tpa.qemu.intel.tpa_service_thread]
+		}
+	}
 }
 
 package "Intel TDX Module" {
-  [tsm.intel.tdx_module]
+	[tsm.intel.tdx_module]
 }
 
 package "AMD PSP Firmware" {
-  [tsm.amd.psp_firmware]
+	[tsm.amd.psp_firmware]
 }
 
 package "TVM" {
-  package "Guest Kernel" {
-    package "Guest Kernel PCI" {
-      package "Guest Kernel PCI TDISP Userspace ABI" {
-        [guest.kernel.pci.sysfs.tdisp_enable]
-        [guest.kernel.pci.sysfs.tdisp_disable]
-        [guest.kernel.pci.sysfs.tdisp_info]
-        [guest.kernel.pci.sysfs.tdisp_accept]
-      }
+	package "Guest Kernel" {
+		package "Guest Kernel PCI" {
+			package "Guest Kernel PCI TDISP Userspace ABI" {
+				[guest.kernel.pci.sysfs.tdisp_enable]
+				[guest.kernel.pci.sysfs.tdisp_disable]
+				[guest.kernel.pci.sysfs.tdisp_info]
+				[guest.kernel.pci.sysfs.tdisp_accept]
+			}
 
-      package "Guest Kernel PCI TDISP API" {
-        [guest.kernel.pci.tdisp.tdisp_enable]
-        [guest.kernel.pci.tdisp.tdisp_disable]
-        [guest.kernel.pci.tdisp.tdisp_info]
-        [guest.kernel.pci.tdisp.tdisp_accept]
-      }
-    }
-  }
+			package "Guest Kernel PCI TDISP API" {
+				[guest.kernel.pci.tdisp.tdisp_enable]
+				[guest.kernel.pci.tdisp.tdisp_disable]
+				[guest.kernel.pci.tdisp.tdisp_info]
+				[guest.kernel.pci.tdisp.tdisp_accept]
+			}
+		}
+	}
 
-  package "Guest TSM Driver API" {
-    [guest.kernel.tsm_driver.api.device_connect]
-    [guest.kernel.tsm_driver.api.device_reclaim]
-    [guest.kernel.tsm_driver.api.tdi_bind]
-    [guest.kernel.tsm_driver.api.tdi_unbind]
-    [guest.kernel.tsm_driver.api.tdi_info]
-    [guest.kernel.tsm_driver.api.accept_device]
-  }
+	package "Guest TSM Driver API" {
+		[guest.kernel.tsm_driver.api.device_connect]
+		[guest.kernel.tsm_driver.api.device_reclaim]
+		[guest.kernel.tsm_driver.api.tdi_bind]
+		[guest.kernel.tsm_driver.api.tdi_unbind]
+		[guest.kernel.tsm_driver.api.tdi_info]
+		[guest.kernel.tsm_driver.api.accept_device]
+	}
 
-  package "Guest TSM Driver Based On GHCX" {
-    package guest.kernel.tsm_driver.ghcx {
-      [guest.kernel.tsm_driver.ghcx.device_connect]
-      [guest.kernel.tsm_driver.ghcx.device_reclaim]
-      [guest.kernel.tsm_driver.ghcx.tdi_bind]
-      [guest.kernel.tsm_driver.ghcx.tdi_unbind]
-      [guest.kernel.tsm_driver.ghcx.tdi_info]
-      [guest.kernel.tsm_driver.ghcx.accept_device]
-      [guest.kernel.tsm_driver.ghcx.start_mmio]
-    }
-  }
+	package "Guest TSM Driver Based On GHCX" {
+		package guest.kernel.tsm_driver.ghcx {
+			[guest.kernel.tsm_driver.ghcx.device_connect]
+			[guest.kernel.tsm_driver.ghcx.device_reclaim]
+			[guest.kernel.tsm_driver.ghcx.tdi_bind]
+			[guest.kernel.tsm_driver.ghcx.tdi_unbind]
+			[guest.kernel.tsm_driver.ghcx.tdi_info]
+			[guest.kernel.tsm_driver.ghcx.accept_device]
+			[guest.kernel.tsm_driver.ghcx.start_mmio]
+		}
+	}
 
-  package "Guest TSM Driver Based On Direct Register Access" {
-    [guest.kernel.tsm_driver.direct.device_connect]
-    [guest.kernel.tsm_driver.direct.device_reclaim]
-    [guest.kernel.tsm_driver.direct.tdi_bind]
-    [guest.kernel.tsm_driver.direct.tdi_unbind]
-    [guest.kernel.tsm_driver.direct.tdi_info]
-    [guest.kernel.tsm_driver.direct.accept_device]
-    [guest.kernel.tsm_driver.direct.start_mmio]
-  }
+	package "Guest TSM Driver Based On Direct Register Access" {
+		[guest.kernel.tsm_driver.direct.device_connect]
+		[guest.kernel.tsm_driver.direct.device_reclaim]
+		[guest.kernel.tsm_driver.direct.tdi_bind]
+		[guest.kernel.tsm_driver.direct.tdi_unbind]
+		[guest.kernel.tsm_driver.direct.tdi_info]
+		[guest.kernel.tsm_driver.direct.accept_device]
+		[guest.kernel.tsm_driver.direct.start_mmio]
+	}
 
-  package "Guest Userspace Attestation" {
-    [guest.userspace.attestation]
-  }
+	package "Guest Userspace Attestation" {
+		[guest.userspace.attestation]
+	}
 }
 
 'Guest controls the TDISP device via TSM
