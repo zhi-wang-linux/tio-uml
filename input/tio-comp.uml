@@ -29,40 +29,41 @@ package "Host" {
 		package "Host Kernel DOE Driver" {
 			[host.kernel.doe_driver.read_write_message]
 		}
+
+		package "Host TSM Driver API" {
+			[host.kernel.tsm_driver.api.device_connect]
+			[host.kernel.tsm_driver.api.device_reclaim]
+			[host.kernel.tsm_driver.api.tdi_bind]
+			[host.kernel.tsm_driver.api.tdi_unbind]
+			[host.kernel.tsm_driver.api.tdi_info]
+		}
+
+		package "Intel Host TSM Driver" {
+			package host.kernel.tsm_driver.intel {
+				[host.kernel.tsm_driver.intel.device_connect]
+				[host.kernel.tsm_driver.intel.device_reclaim]
+				[host.kernel.tsm_driver.intel.tdi_bind]
+				[host.kernel.tsm_driver.intel.tdi_unbind]
+				[host.kernel.tsm_driver.intel.tdi_info]
+				[host.kernel.tsm_driver.intel.tpa_command_channel]
+			}
+		}
+
+		package "AMD Host TSM Driver" {
+			package host.kernel.tsm_driver.amd {
+				[host.kernel.tsm_driver.amd.device_connect]
+				[host.kernel.tsm_driver.amd.device_reclaim]
+				[host.kernel.tsm_driver.amd.tdi_bind]
+				[host.kernel.tsm_driver.amd.tdi_unbind]
+				[host.kernel.tsm_driver.amd.tdi_info]
+			}
+		}
 	}
 
 	package "Host TVM QEMU" {
 		[host.tvm.qemu.vcpu_thread]
 	}
 
-	package "Host TSM Driver API" {
-		[host.kernel.tsm_driver.api.device_connect]
-		[host.kernel.tsm_driver.api.device_reclaim]
-		[host.kernel.tsm_driver.api.tdi_bind]
-		[host.kernel.tsm_driver.api.tdi_unbind]
-		[host.kernel.tsm_driver.api.tdi_info]
-	}
-
-	package "Intel Host TSM Driver" {
-		package host.kernel.tsm_driver.intel {
-			[host.kernel.tsm_driver.intel.device_connect]
-			[host.kernel.tsm_driver.intel.device_reclaim]
-			[host.kernel.tsm_driver.intel.tdi_bind]
-			[host.kernel.tsm_driver.intel.tdi_unbind]
-			[host.kernel.tsm_driver.intel.tdi_info]
-			[host.kernel.tsm_driver.intel.tpa_command_channel]
-		}
-	}
-
-	package "AMD Host TSM Driver" {
-		package host.kernel.tsm_driver.amd {
-			[host.kernel.tsm_driver.amd.device_connect]
-			[host.kernel.tsm_driver.amd.device_reclaim]
-			[host.kernel.tsm_driver.amd.tdi_bind]
-			[host.kernel.tsm_driver.amd.tdi_unbind]
-			[host.kernel.tsm_driver.amd.tdi_info]
-		}
-	}
 
 	package "Host TPA QEMU" {
 		[host.tpa.qemu.vcpu_thread]
@@ -100,37 +101,37 @@ package "TVM" {
 				[guest.kernel.pci.tdisp.tdisp_accept]
 			}
 		}
-	}
 
-	package "Guest TSM Driver API" {
-		[guest.kernel.tsm_driver.api.device_connect]
-		[guest.kernel.tsm_driver.api.device_reclaim]
-		[guest.kernel.tsm_driver.api.tdi_bind]
-		[guest.kernel.tsm_driver.api.tdi_unbind]
-		[guest.kernel.tsm_driver.api.tdi_info]
-		[guest.kernel.tsm_driver.api.accept_device]
-	}
-
-	package "Guest TSM Driver Based On GHCX" {
-		package guest.kernel.tsm_driver.virtio {
-			[guest.kernel.tsm_driver.virtio.device_connect]
-			[guest.kernel.tsm_driver.virtio.device_reclaim]
-			[guest.kernel.tsm_driver.virtio.tdi_bind]
-			[guest.kernel.tsm_driver.virtio.tdi_unbind]
-			[guest.kernel.tsm_driver.virtio.tdi_info]
-			[guest.kernel.tsm_driver.virtio.accept_device]
-			[guest.kernel.tsm_driver.virtio.start_mmio]
+		package "Guest TSM Driver API" {
+			[guest.kernel.tsm_driver.api.device_connect]
+			[guest.kernel.tsm_driver.api.device_reclaim]
+			[guest.kernel.tsm_driver.api.tdi_bind]
+			[guest.kernel.tsm_driver.api.tdi_unbind]
+			[guest.kernel.tsm_driver.api.tdi_info]
+			[guest.kernel.tsm_driver.api.accept_device]
 		}
-	}
 
-	package "Guest TSM Driver Based On Direct Register Access" {
-		[guest.kernel.tsm_driver.direct.device_connect]
-		[guest.kernel.tsm_driver.direct.device_reclaim]
-		[guest.kernel.tsm_driver.direct.tdi_bind]
-		[guest.kernel.tsm_driver.direct.tdi_unbind]
-		[guest.kernel.tsm_driver.direct.tdi_info]
-		[guest.kernel.tsm_driver.direct.accept_device]
-		[guest.kernel.tsm_driver.direct.start_mmio]
+		package "Guest TSM Driver Based On GHCX" {
+			package guest.kernel.tsm_driver.virtio {
+				[guest.kernel.tsm_driver.virtio.device_connect]
+				[guest.kernel.tsm_driver.virtio.device_reclaim]
+				[guest.kernel.tsm_driver.virtio.tdi_bind]
+				[guest.kernel.tsm_driver.virtio.tdi_unbind]
+				[guest.kernel.tsm_driver.virtio.tdi_info]
+				[guest.kernel.tsm_driver.virtio.accept_device]
+				[guest.kernel.tsm_driver.virtio.start_mmio]
+			}
+		}
+
+		package "Guest TSM Driver Based On Direct Register Access" {
+			[guest.kernel.tsm_driver.direct.device_connect]
+			[guest.kernel.tsm_driver.direct.device_reclaim]
+			[guest.kernel.tsm_driver.direct.tdi_bind]
+			[guest.kernel.tsm_driver.direct.tdi_unbind]
+			[guest.kernel.tsm_driver.direct.tdi_info]
+			[guest.kernel.tsm_driver.direct.accept_device]
+			[guest.kernel.tsm_driver.direct.start_mmio]
+		}
 	}
 
 	package "Guest Userspace Attestation" {
